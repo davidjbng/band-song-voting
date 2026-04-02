@@ -1,11 +1,12 @@
 "use client"
 
+// Band Song Voting Component
 import { useState, useEffect, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { SongCard } from "@/components/song-card"
 import { AddSongDialog } from "@/components/add-song-dialog"
 import { UserNameDialog } from "@/components/user-name-dialog"
-import { Empty } from "@/components/ui/empty"
+import { Empty, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
 import { Spinner } from "@/components/ui/spinner"
 import { Music } from "lucide-react"
 import type { Song, Vote, SongWithVotes } from "@/lib/types"
@@ -199,13 +200,13 @@ export function SongVoting() {
           </div>
         ) : songs.length === 0 ? (
           <Empty className="py-20">
-            <Empty.Icon>
+            <EmptyMedia variant="icon">
               <Music className="h-10 w-10" />
-            </Empty.Icon>
-            <Empty.Title>Noch keine Songs</Empty.Title>
-            <Empty.Description>
+            </EmptyMedia>
+            <EmptyTitle>Noch keine Songs</EmptyTitle>
+            <EmptyDescription>
               Fuege den ersten Song hinzu, ueber den die Band abstimmen soll.
-            </Empty.Description>
+            </EmptyDescription>
           </Empty>
         ) : (
           <div className="flex flex-col gap-4 max-w-2xl mx-auto">
