@@ -1,7 +1,7 @@
 "use client"
 
-// Band Song Voting Component
-import { useState, useEffect, useCallback } from "react"
+// Song Voting Component with realtime updates
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { SongCard } from "@/components/song-card"
 import { AddSongDialog } from "@/components/add-song-dialog"
@@ -19,9 +19,10 @@ export function SongVoting() {
   const [userName, setUserName] = useState<string | null>(null)
   const [showNameDialog, setShowNameDialog] = useState(false)
 
-  const supabase = createClient()
+  // Supabase client nur einmal erstellen
+  const supabase = useMemo(() => createClient(), [])
 
-  // Load user name from localStorage
+  // Lade Username aus localStorage
   useEffect(() => {
     const storedName = localStorage.getItem(USER_NAME_KEY)
     if (storedName) {
@@ -31,7 +32,6 @@ export function SongVoting() {
     }
   }, [])
 
-  // Fetch songs with votes
   const fetchSongs = useCallback(async () => {
     const { data: songsData, error: songsError } = await supabase
       .from("songs")
@@ -52,56 +52,60 @@ export function SongVoting() {
       return
     }
 
-    // Combine songs with their votes
-    const songsWithVotes: SongWithVotes[] = (songsData as Song[]).map((song) => {
-      const songVotes = (votesData as Vote[]).filter((v) => v.song_id === song.id)
-      const voteScore = songVotes.reduce((acc, v) => acc + v.vote_type, 0)
-      const userVote = userName
-        ? songVotes.find((v) => v.voter_name === userName)?.vote_type || null
-        : null
-
+    // Kombiniere Songs mit ihren Votes
+    const songsWithVotes: SongWithVotes[] = (songsData || []).map((song: Song) => {
+      const songVotes = (votesData || []).filter((v: Vote) => v.song_id === song.id)
+      const totalVotes = songVotes.reduce((sum: number, v: Vote) => sum + v.vote_type, 0)
       return {
         ...song,
         votes: songVotes,
-        vote_score: voteScore,
-        user_vote: userVote as -1 | 1 | null,
+        totalVotes,
       }
     })
 
-    // Sort by vote score (descending)
-    songsWithVotes.sort((a, b) => b.vote_score - a.vote_score)
+    // Sortiere nach Votes (hoechste zuerst)
+    songsWithVotes.sort((a, b) => b.totalVotes - a.totalVotes)
 
     setSongs(songsWithVotes)
     setLoading(false)
-  }, [supabase, userName])
+  }, [supabase])
 
-  // Initial fetch and realtime subscription
+  // Initial fetch
   useEffect(() => {
-    if (!userName) return
-
     fetchSongs()
+  }, [fetchSongs])
 
-    // Subscribe to realtime changes
+  // Realtime subscription
+  useEffect(() => {
     const songsChannel = supabase
       .channel("songs-changes")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "songs" },
-        () => fetchSongs()
+        () => {
+          fetchSongs()
+        }
       )
+      .subscribe()
+
+    const votesChannel = supabase
+      .channel("votes-changes")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "votes" },
-        () => fetchSongs()
+        () => {
+          fetchSongs()
+        }
       )
       .subscribe()
 
     return () => {
       supabase.removeChannel(songsChannel)
+      supabase.removeChannel(votesChannel)
     }
-  }, [userName, fetchSongs, supabase])
+  }, [supabase, fetchSongs])
 
-  const handleNameSubmit = (name: string) => {
+  const handleSetUserName = (name: string) => {
     localStorage.setItem(USER_NAME_KEY, name)
     setUserName(name)
     setShowNameDialog(false)
@@ -125,6 +129,9 @@ export function SongVoting() {
 
     if (error) {
       console.error("Error adding song:", error)
+    } else {
+      // Sofort aktualisieren
+      await fetchSongs()
     }
   }
 
@@ -155,6 +162,9 @@ export function SongVoting() {
         vote_type: voteType,
       })
     }
+
+    // Sofort aktualisieren
+    await fetchSongs()
   }
 
   const handleUpdateArranger = async (songId: string, arranger: string) => {
@@ -162,43 +172,57 @@ export function SongVoting() {
       .from("songs")
       .update({ arranger: arranger || null })
       .eq("id", songId)
+
+    // Sofort aktualisieren
+    await fetchSongs()
   }
 
   const handleDeleteSong = async (songId: string) => {
     await supabase.from("songs").delete().eq("id", songId)
+
+    // Sofort aktualisieren
+    await fetchSongs()
   }
 
-  if (!userName) {
-    return <UserNameDialog open={showNameDialog} onSubmit={handleNameSubmit} />
+  const getUserVote = (song: SongWithVotes): 1 | -1 | null => {
+    if (!userName) return null
+    const vote = song.votes.find((v) => v.voter_name === userName)
+    return vote ? (vote.vote_type as 1 | -1) : null
+  }
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Spinner className="h-8 w-8" />
+      </div>
+    )
   }
 
   return (
     <div className="min-h-screen bg-background">
+      <UserNameDialog
+        open={showNameDialog}
+        onSubmit={handleSetUserName}
+      />
+
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Music className="h-5 w-5" />
-              </div>
-              <div>
-                <h1 className="font-semibold text-lg text-foreground">Band Voting</h1>
-                <p className="text-xs text-muted-foreground">Hallo, {userName}</p>
-              </div>
-            </div>
-            <AddSongDialog onAddSong={handleAddSong} />
+      <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-4">
+          <div>
+            <h1 className="text-xl font-bold text-foreground">Band Song Voting</h1>
+            {userName && (
+              <p className="text-sm text-muted-foreground">
+                Eingeloggt als {userName}
+              </p>
+            )}
           </div>
+          <AddSongDialog onAddSong={handleAddSong} />
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-6">
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Spinner className="h-8 w-8" />
-          </div>
-        ) : songs.length === 0 ? (
+      {/* Song List */}
+      <main className="mx-auto max-w-2xl px-4 py-6">
+        {songs.length === 0 ? (
           <Empty className="py-20">
             <EmptyMedia variant="icon">
               <Music className="h-10 w-10" />
@@ -209,12 +233,12 @@ export function SongVoting() {
             </EmptyDescription>
           </Empty>
         ) : (
-          <div className="flex flex-col gap-4 max-w-2xl mx-auto">
+          <div className="flex flex-col gap-4">
             {songs.map((song) => (
               <SongCard
                 key={song.id}
                 song={song}
-                userName={userName}
+                userVote={getUserVote(song)}
                 onVote={handleVote}
                 onUpdateArranger={handleUpdateArranger}
                 onDelete={handleDeleteSong}
