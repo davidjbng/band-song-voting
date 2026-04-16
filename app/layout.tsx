@@ -7,9 +7,43 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+  title: {
+    default: 'Band Song Voting',
+    template: '%s | Band Song Voting',
+  },
+  description: 'Pitch songs, vote together in real time, and build your band’s next killer setlist.',
+  applicationName: 'Band Song Voting',
+  generator: 'Next.js',
+  referrer: 'origin-when-cross-origin',
+  keywords: ['band', 'music', 'song voting', 'setlist', 'collaboration', 'realtime'],
+  authors: [{ name: 'davidjbng' }],
+  creator: 'davidjbng',
+  publisher: 'davidjbng',
+  category: 'music',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
+  manifest: '/manifest.webmanifest',
+  openGraph: {
+    title: 'Band Song Voting',
+    description: 'Pitch songs, vote together in real time, and build your band’s next killer setlist.',
+    type: 'website',
+    locale: 'en_US',
+    siteName: 'Band Song Voting',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Band Song Voting',
+    description: 'Pitch songs, vote together in real time, and build your band’s next killer setlist.',
+  },
   icons: {
     icon: [
       {
@@ -26,6 +60,11 @@ export const metadata: Metadata = {
       },
     ],
     apple: '/apple-icon.png',
+  },
+  appleWebApp: {
+    title: 'Band Song Voting',
+    capable: true,
+    statusBarStyle: 'default',
   },
 }
 
