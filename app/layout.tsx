@@ -8,11 +8,11 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    default: 'Band Song Battle',
-    template: '%s | Band Song Battle',
+    default: 'Band Song Voting',
+    template: '%s | Band Song Voting',
   },
   description: 'Pitch songs, vote together in real time, and build your band’s next killer setlist.',
-  applicationName: 'Band Song Battle',
+  applicationName: 'Band Song Voting',
   generator: 'Next.js',
   referrer: 'origin-when-cross-origin',
   keywords: ['band', 'music', 'song voting', 'setlist', 'collaboration', 'realtime'],
@@ -33,15 +33,15 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.webmanifest',
   openGraph: {
-    title: 'Band Song Battle',
+    title: 'Band Song Voting',
     description: 'Pitch songs, vote together in real time, and build your band’s next killer setlist.',
     type: 'website',
     locale: 'en_US',
-    siteName: 'Band Song Battle',
+    siteName: 'Band Song Voting',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Band Song Battle',
+    title: 'Band Song Voting',
     description: 'Pitch songs, vote together in real time, and build your band’s next killer setlist.',
   },
   icons: {
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
     apple: '/apple-icon.png',
   },
   appleWebApp: {
-    title: 'Band Song Battle',
+    title: 'Band Song Voting',
     capable: true,
     statusBarStyle: 'default',
   },

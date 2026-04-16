@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Band Song Battle',
-    short_name: 'Song Battle',
+    name: 'Band Song Voting',
+    short_name: 'Song Voting',
     description: 'Pitch songs, vote together in real time, and build your band’s next killer setlist.',
     start_url: '/',
     display: 'standalone',
