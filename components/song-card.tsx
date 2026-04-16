@@ -59,41 +59,42 @@ export function SongCard({ song, userName, onVote, onUpdateArranger, onDelete }:
       <CardContent className="p-4">
         <div className="flex gap-4">
           {/* Voting Section */}
-          <div className="flex flex-col items-center gap-1 min-w-[48px]">
+          <div className="flex flex-col items-center gap-1 min-w-[56px]">
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                "h-10 w-10 rounded-full transition-colors",
+                "h-11 w-11 rounded-full transition-all",
                 song.user_vote === 1
-                  ? "bg-upvote/20 text-upvote hover:bg-upvote/30"
-                  : "hover:bg-upvote/10 hover:text-upvote"
+                  ? "bg-green-500/20 text-green-500 ring-2 ring-green-500/50 hover:bg-green-500/30"
+                  : "hover:bg-green-500/10 hover:text-green-500 text-muted-foreground"
               )}
               onClick={() => handleVote(1)}
               disabled={isVoting}
             >
-              <ChevronUp className="h-6 w-6" />
+              <ChevronUp className={cn("h-7 w-7", song.user_vote === 1 && "stroke-[3]")} />
             </Button>
             <span className={cn(
-              "text-lg font-bold tabular-nums",
-              song.vote_score > 0 && "text-upvote",
-              song.vote_score < 0 && "text-downvote"
+              "text-xl font-bold tabular-nums min-w-[2ch] text-center py-1",
+              song.vote_score > 0 && "text-green-500",
+              song.vote_score < 0 && "text-red-500",
+              song.vote_score === 0 && "text-muted-foreground"
             )}>
-              {song.vote_score}
+              {song.vote_score > 0 ? `+${song.vote_score}` : song.vote_score}
             </span>
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                "h-10 w-10 rounded-full transition-colors",
+                "h-11 w-11 rounded-full transition-all",
                 song.user_vote === -1
-                  ? "bg-downvote/20 text-downvote hover:bg-downvote/30"
-                  : "hover:bg-downvote/10 hover:text-downvote"
+                  ? "bg-red-500/20 text-red-500 ring-2 ring-red-500/50 hover:bg-red-500/30"
+                  : "hover:bg-red-500/10 hover:text-red-500 text-muted-foreground"
               )}
               onClick={() => handleVote(-1)}
               disabled={isVoting}
             >
-              <ChevronDown className="h-6 w-6" />
+              <ChevronDown className={cn("h-7 w-7", song.user_vote === -1 && "stroke-[3]")} />
             </Button>
           </div>
 
