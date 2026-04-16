@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Plus } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Pencil } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -12,11 +12,12 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Field, FieldLabel, FieldGroup } from "@/components/ui/field"
+import type { SongWithVotes } from "@/lib/types"
 
-interface AddSongDialogProps {
-  onAddSong: (song: {
+interface EditSongDialogProps {
+  song: SongWithVotes
+  onEditSong: (songId: string, songData: {
     title: string
     artist: string
     spotify_url: string
@@ -25,16 +26,27 @@ interface AddSongDialogProps {
   }) => Promise<void>
 }
 
-export function AddSongDialog({ onAddSong }: AddSongDialogProps) {
+export function EditSongDialog({ song, onEditSong }: EditSongDialogProps) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
-    title: "",
-    artist: "",
-    spotify_url: "",
-    youtube_url: "",
-    tidal_url: "",
+    title: song.title,
+    artist: song.artist || "",
+    spotify_url: song.spotify_url || "",
+    youtube_url: song.youtube_url || "",
+    tidal_url: song.tidal_url || "",
   })
+
+  // Aktualisiere formData wenn sich der Song ändert
+  useEffect(() => {
+    setFormData({
+      title: song.title,
+      artist: song.artist || "",
+      spotify_url: song.spotify_url || "",
+      youtube_url: song.youtube_url || "",
+      tidal_url: song.tidal_url || "",
+    })
+  }, [song])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -42,14 +54,7 @@ export function AddSongDialog({ onAddSong }: AddSongDialogProps) {
 
     setIsSubmitting(true)
     try {
-      await onAddSong(formData)
-      setFormData({
-        title: "",
-        artist: "",
-        spotify_url: "",
-        youtube_url: "",
-        tidal_url: "",
-      })
+      await onEditSong(song.id, formData)
       setOpen(false)
     } finally {
       setIsSubmitting(false)
@@ -59,24 +64,28 @@ export function AddSongDialog({ onAddSong }: AddSongDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="lg" className="gap-2 min-h-[44px]">
-          <Plus className="h-5 w-5" />
-Song hinzufügen
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0"
+        >
+          <Pencil className="h-4 w-4" />
+          <span className="sr-only">Song bearbeiten</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Neuen Song hinzufügen</DialogTitle>
+          <DialogTitle>Song bearbeiten</DialogTitle>
           <DialogDescription>
-            Füge einen Song hinzu, über den die Band abstimmen soll.
+            Ändere die Details des Songs.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="mt-4">
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="title">Titel *</FieldLabel>
+              <FieldLabel htmlFor="edit-title">Titel *</FieldLabel>
               <Input
-                id="title"
+                id="edit-title"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="z.B. Bohemian Rhapsody"
@@ -86,9 +95,9 @@ Song hinzufügen
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="artist">Künstler</FieldLabel>
+              <FieldLabel htmlFor="edit-artist">Künstler</FieldLabel>
               <Input
-                id="artist"
+                id="edit-artist"
                 value={formData.artist}
                 onChange={(e) => setFormData({ ...formData, artist: e.target.value })}
                 placeholder="z.B. Queen"
@@ -97,9 +106,9 @@ Song hinzufügen
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="spotify">Spotify Link</FieldLabel>
+              <FieldLabel htmlFor="edit-spotify">Spotify Link</FieldLabel>
               <Input
-                id="spotify"
+                id="edit-spotify"
                 type="url"
                 value={formData.spotify_url}
                 onChange={(e) => setFormData({ ...formData, spotify_url: e.target.value })}
@@ -109,9 +118,9 @@ Song hinzufügen
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="youtube">YouTube Link</FieldLabel>
+              <FieldLabel htmlFor="edit-youtube">YouTube Link</FieldLabel>
               <Input
-                id="youtube"
+                id="edit-youtube"
                 type="url"
                 value={formData.youtube_url}
                 onChange={(e) => setFormData({ ...formData, youtube_url: e.target.value })}
@@ -121,9 +130,9 @@ Song hinzufügen
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="tidal">Tidal Link</FieldLabel>
+              <FieldLabel htmlFor="edit-tidal">Tidal Link</FieldLabel>
               <Input
-                id="tidal"
+                id="edit-tidal"
                 type="url"
                 value={formData.tidal_url}
                 onChange={(e) => setFormData({ ...formData, tidal_url: e.target.value })}
@@ -138,7 +147,7 @@ Song hinzufügen
               Abbrechen
             </Button>
             <Button type="submit" disabled={isSubmitting || !formData.title.trim()} className="min-h-[44px]">
-              {isSubmitting ? "Wird hinzugefügt..." : "Hinzufügen"}
+              {isSubmitting ? "Wird gespeichert..." : "Speichern"}
             </Button>
           </div>
         </form>
