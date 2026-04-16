@@ -31,7 +31,7 @@ export const metadata: Metadata = {
       'max-video-preview': -1,
     },
   },
-  manifest: '/site.webmanifest',
+  manifest: '/manifest.webmanifest',
   openGraph: {
     title: 'Band Song Battle',
     description: 'Pitch songs, vote together in real time, and build your band’s next killer setlist.',
