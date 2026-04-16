@@ -18,6 +18,7 @@ export function SongVoting() {
   const [loading, setLoading] = useState(true)
   const [userName, setUserName] = useState<string | null>(null)
   const [showNameDialog, setShowNameDialog] = useState(false)
+  const [isEditingName, setIsEditingName] = useState(false)
 
   // Supabase client nur einmal erstellen
   const supabase = useMemo(() => createClient(), [])
@@ -116,6 +117,17 @@ export function SongVoting() {
     localStorage.setItem(USER_NAME_KEY, name)
     setUserName(name)
     setShowNameDialog(false)
+    setIsEditingName(false)
+    // Votes neu laden um user_vote korrekt anzuzeigen
+    fetchSongs()
+  }
+
+  const handleCancelNameEdit = () => {
+    setIsEditingName(false)
+  }
+
+  const handleOpenNameEdit = () => {
+    setIsEditingName(true)
   }
 
   const handleAddSong = async (songData: {
@@ -201,9 +213,19 @@ export function SongVoting() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Initial Name Dialog */}
       <UserNameDialog
-        open={showNameDialog}
+        open={showNameDialog && !isEditingName}
         onSubmit={handleSetUserName}
+      />
+
+      {/* Name Edit Dialog */}
+      <UserNameDialog
+        open={isEditingName}
+        onSubmit={handleSetUserName}
+        onCancel={handleCancelNameEdit}
+        currentName={userName || ""}
+        isEditMode
       />
 
       {/* Header */}
@@ -212,9 +234,13 @@ export function SongVoting() {
           <div>
             <h1 className="text-xl font-bold text-foreground">Band Song Voting</h1>
             {userName && (
-              <p className="text-sm text-muted-foreground">
-                Eingeloggt als {userName}
-              </p>
+              <button 
+                onClick={handleOpenNameEdit}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+              >
+                {userName}
+                <span className="text-xs">(aendern)</span>
+              </button>
             )}
           </div>
           <AddSongDialog onAddSong={handleAddSong} />

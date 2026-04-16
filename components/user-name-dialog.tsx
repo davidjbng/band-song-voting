@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -15,10 +15,22 @@ import { Field, FieldLabel } from "@/components/ui/field"
 interface UserNameDialogProps {
   open: boolean
   onSubmit: (name: string) => void
+  onCancel?: () => void
+  currentName?: string
+  isEditMode?: boolean
 }
 
-export function UserNameDialog({ open, onSubmit }: UserNameDialogProps) {
+export function UserNameDialog({ open, onSubmit, onCancel, currentName, isEditMode = false }: UserNameDialogProps) {
   const [name, setName] = useState("")
+
+  // Setze den aktuellen Namen wenn der Dialog geoeffnet wird
+  useEffect(() => {
+    if (open && currentName) {
+      setName(currentName)
+    } else if (!open) {
+      setName("")
+    }
+  }, [open, currentName])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -28,12 +40,15 @@ export function UserNameDialog({ open, onSubmit }: UserNameDialogProps) {
   }
 
   return (
-    <Dialog open={open}>
-      <DialogContent className="sm:max-w-[400px]" showCloseButton={false}>
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onCancel?.()}>
+      <DialogContent className="sm:max-w-[400px]" showCloseButton={isEditMode}>
         <DialogHeader>
-          <DialogTitle>Willkommen!</DialogTitle>
+          <DialogTitle>{isEditMode ? "Name aendern" : "Willkommen!"}</DialogTitle>
           <DialogDescription>
-            Gib deinen Namen ein, damit wir wissen, wer abstimmt.
+            {isEditMode 
+              ? "Gib deinen neuen Namen ein."
+              : "Gib deinen Namen ein, damit wir wissen, wer abstimmt."
+            }
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="mt-4">
@@ -49,13 +64,25 @@ export function UserNameDialog({ open, onSubmit }: UserNameDialogProps) {
               className="text-base"
             />
           </Field>
-          <Button
-            type="submit"
-            className="w-full mt-4 min-h-[44px]"
-            disabled={!name.trim()}
-          >
-            Los geht&apos;s
-          </Button>
+          <div className="flex gap-2 mt-4">
+            {isEditMode && onCancel && (
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1 min-h-[44px]"
+                onClick={onCancel}
+              >
+                Abbrechen
+              </Button>
+            )}
+            <Button
+              type="submit"
+              className={isEditMode ? "flex-1 min-h-[44px]" : "w-full min-h-[44px]"}
+              disabled={!name.trim()}
+            >
+              {isEditMode ? "Speichern" : "Los geht's"}
+            </Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
