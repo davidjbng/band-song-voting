@@ -232,7 +232,7 @@ export function SongVoting() {
       <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-4">
           <div>
-            <h1 className="text-xl font-bold text-foreground">Band Song Voting</h1>
+            <h1 className="text-xl font-bold text-foreground">Band Song Battle</h1>
             {userName && (
               <button 
                 onClick={handleOpenNameEdit}
