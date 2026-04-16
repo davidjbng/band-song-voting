@@ -52,19 +52,26 @@ export function SongVoting() {
       return
     }
 
+    // Hole aktuellen Username
+    const currentUserName = localStorage.getItem(USER_NAME_KEY)
+
     // Kombiniere Songs mit ihren Votes
     const songsWithVotes: SongWithVotes[] = (songsData || []).map((song: Song) => {
       const songVotes = (votesData || []).filter((v: Vote) => v.song_id === song.id)
-      const totalVotes = songVotes.reduce((sum: number, v: Vote) => sum + v.vote_type, 0)
+      const vote_score = songVotes.reduce((sum: number, v: Vote) => sum + v.vote_type, 0)
+      const userVote = currentUserName 
+        ? songVotes.find((v: Vote) => v.voter_name === currentUserName)
+        : null
       return {
         ...song,
         votes: songVotes,
-        totalVotes,
+        vote_score,
+        user_vote: userVote ? (userVote.vote_type as -1 | 1) : null,
       }
     })
 
     // Sortiere nach Votes (hoechste zuerst)
-    songsWithVotes.sort((a, b) => b.totalVotes - a.totalVotes)
+    songsWithVotes.sort((a, b) => b.vote_score - a.vote_score)
 
     setSongs(songsWithVotes)
     setLoading(false)
@@ -184,12 +191,6 @@ export function SongVoting() {
     await fetchSongs()
   }
 
-  const getUserVote = (song: SongWithVotes): 1 | -1 | null => {
-    if (!userName) return null
-    const vote = song.votes.find((v) => v.voter_name === userName)
-    return vote ? (vote.vote_type as 1 | -1) : null
-  }
-
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -238,7 +239,7 @@ export function SongVoting() {
               <SongCard
                 key={song.id}
                 song={song}
-                userVote={getUserVote(song)}
+                userName={userName || ""}
                 onVote={handleVote}
                 onUpdateArranger={handleUpdateArranger}
                 onDelete={handleDeleteSong}
