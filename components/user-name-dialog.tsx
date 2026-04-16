@@ -23,7 +23,7 @@ interface UserNameDialogProps {
 export function UserNameDialog({ open, onSubmit, onCancel, currentName, isEditMode = false }: UserNameDialogProps) {
   const [name, setName] = useState("")
 
-  // Setze den aktuellen Namen wenn der Dialog geoeffnet wird
+  // Setze den aktuellen Namen wenn der Dialog geöffnet wird
   useEffect(() => {
     if (open && currentName) {
       setName(currentName)
@@ -43,7 +43,7 @@ export function UserNameDialog({ open, onSubmit, onCancel, currentName, isEditMo
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onCancel?.()}>
       <DialogContent className="sm:max-w-[400px]" showCloseButton={isEditMode}>
         <DialogHeader>
-          <DialogTitle>{isEditMode ? "Name aendern" : "Willkommen!"}</DialogTitle>
+          <DialogTitle>{isEditMode ? "Name ändern" : "Willkommen!"}</DialogTitle>
           <DialogDescription>
             {isEditMode 
               ? "Gib deinen neuen Namen ein."

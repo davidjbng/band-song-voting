@@ -61,14 +61,14 @@ export function AddSongDialog({ onAddSong }: AddSongDialogProps) {
       <DialogTrigger asChild>
         <Button size="lg" className="gap-2 min-h-[44px]">
           <Plus className="h-5 w-5" />
-          Song hinzufuegen
+Song hinzufügen
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Neuen Song hinzufuegen</DialogTitle>
+          <DialogTitle>Neuen Song hinzufügen</DialogTitle>
           <DialogDescription>
-            Fuege einen Song hinzu, ueber den die Band abstimmen soll.
+            Füge einen Song hinzu, über den die Band abstimmen soll.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="mt-4">
@@ -86,7 +86,7 @@ export function AddSongDialog({ onAddSong }: AddSongDialogProps) {
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="artist">Kuenstler</FieldLabel>
+              <FieldLabel htmlFor="artist">Künstler</FieldLabel>
               <Input
                 id="artist"
                 value={formData.artist}
@@ -138,7 +138,7 @@ export function AddSongDialog({ onAddSong }: AddSongDialogProps) {
               Abbrechen
             </Button>
             <Button type="submit" disabled={isSubmitting || !formData.title.trim()} className="min-h-[44px]">
-              {isSubmitting ? "Wird hinzugefuegt..." : "Hinzufuegen"}
+              {isSubmitting ? "Wird hinzugefügt..." : "Hinzufügen"}
             </Button>
           </div>
         </form>

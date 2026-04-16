@@ -71,7 +71,7 @@ export function SongVoting() {
       }
     })
 
-    // Sortiere nach Votes (hoechste zuerst)
+    // Sortiere nach Votes (höchste zuerst)
     songsWithVotes.sort((a, b) => b.vote_score - a.vote_score)
 
     setSongs(songsWithVotes)
@@ -239,7 +239,7 @@ export function SongVoting() {
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
               >
                 {userName}
-                <span className="text-xs">(aendern)</span>
+                <span className="text-xs">(ändern)</span>
               </button>
             )}
           </div>
@@ -256,7 +256,7 @@ export function SongVoting() {
             </EmptyMedia>
             <EmptyTitle>Noch keine Songs</EmptyTitle>
             <EmptyDescription>
-              Fuege den ersten Song hinzu, ueber den die Band abstimmen soll.
+              Füge den ersten Song hinzu, über den die Band abstimmen soll.
             </EmptyDescription>
           </Empty>
         ) : (
